@@ -1,0 +1,2193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>PopTube Mobile</title>
+    <!-- Font Awesome 6 (для иконок) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        /* mobile-first стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Светлая тема (по умолчанию) */
+        body {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-elevated: #f1f5f9;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+            --hover-bg: #e9edf3;
+            --sidebar-bg: #ffffff;
+            --header-bg: rgba(255,255,255,0.8);
+            --shadow: 0 4px 12px rgba(0,0,0,0.05);
+            --shadow-hover: 0 8px 20px rgba(0,0,0,0.1);
+            --accent: #2563eb;
+            --accent-light: #3b82f6;
+            --danger: #dc2626;
+        }
+
+        /* Тёмная тема */
+        body.dark {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-elevated: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: #334155;
+            --card-bg: #1e293b;
+            --hover-bg: #2d3a4f;
+            --sidebar-bg: #1e293b;
+            --header-bg: rgba(30,41,59,0.9);
+            --shadow: 0 4px 12px rgba(0,0,0,0.3);
+            --shadow-hover: 0 8px 20px rgba(0,0,0,0.5);
+        }
+
+        .app {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Шапка */
+        .header {
+            background-color: var(--header-bg);
+            backdrop-filter: blur(10px);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            gap: 8px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+            color: var(--accent);
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-container {
+            flex: 1;
+            min-width: 0;
+            margin: 0 4px;
+        }
+
+        .search-box {
+            display: flex;
+            width: 100%;
+            border: 1px solid var(--border-color);
+            border-radius: 40px;
+            overflow: hidden;
+            background-color: var(--bg-secondary);
+            transition: box-shadow 0.2s;
+        }
+
+        .search-box:focus-within {
+            box-shadow: 0 0 0 2px var(--accent-light);
+            border-color: transparent;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            padding: 10px 16px;
+            font-size: 0.95rem;
+            background: transparent;
+            color: var(--text-primary);
+            outline: none;
+            min-width: 0;
+        }
+
+        .search-box button {
+            background-color: var(--bg-elevated);
+            border: none;
+            border-left: 1px solid var(--border-color);
+            width: 48px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .header-icons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .header-icons i, .header-icons button {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .header-icons button:hover { color: var(--accent); }
+
+        .avatar-placeholder {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            background-color: var(--accent-light);
+            border: 2px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        /* Боковое меню (выдвижное) */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            z-index: 201;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+            padding: 20px 12px;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.1);
+        }
+
+        .sidebar.open {
+            left: 0;
+        }
+
+        .sidebar .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 16px;
+            border-radius: 18px;
+            color: var(--text-primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 4px;
+        }
+
+        .sidebar .nav-item i {
+            font-size: 1.3rem;
+            width: 28px;
+            color: var(--text-secondary);
+        }
+
+        .sidebar .nav-item.active {
+            background: linear-gradient(135deg, var(--accent-light), var(--accent));
+            color: white;
+        }
+        .sidebar .nav-item.active i { color: white; }
+
+        .sidebar hr {
+            margin: 20px 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .sidebar h4 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Основной контент */
+        .content {
+            flex: 1;
+            padding: 16px 12px;
+            overflow-x: hidden;
+        }
+
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* Чипсы */
+        .chips-wrapper {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .chip {
+            background-color: var(--bg-elevated);
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 500;
+            color: var(--text-primary);
+            cursor: pointer;
+            border: 1px solid transparent;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        .chip.active {
+            background-color: var(--accent);
+            color: white;
+        }
+        .upload-home-btn {
+            background: linear-gradient(135deg, var(--accent), #7c3aed);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            margin-left: auto;
+        }
+
+        /* Сетка видео (одна колонка) */
+        .video-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .video-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .thumbnail {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #1e293b;
+        }
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            backdrop-filter: blur(4px);
+        }
+
+        .video-info {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+        }
+        .channel-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-light);
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+        .video-details {
+            flex: 1;
+        }
+        .video-title {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .channel-name {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .video-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .video-actions-card {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 6px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 5;
+        }
+        .video-card:hover .video-actions-card,
+        .video-card:active .video-actions-card {
+            opacity: 1;
+        }
+        .video-actions-card button {
+            background: rgba(0,0,0,0.6);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            backdrop-filter: blur(4px);
+        }
+
+        /* Видеоплеер */
+        .video-player {
+            width: 100%;
+            background: #000;
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .video-player video {
+            width: 100%;
+            max-height: 50vh;
+            outline: none;
+        }
+
+        .video-title-block {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .video-description {
+            background: var(--bg-elevated);
+            padding: 16px;
+            border-radius: 24px;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .video-actions {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .like-button {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-elevated);
+            border: none;
+            color: var(--text-secondary);
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .like-button.liked {
+            background: var(--accent);
+            color: white;
+        }
+
+        .channel-info-mini {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-elevated);
+            padding: 12px 16px;
+            border-radius: 60px;
+            margin-bottom: 20px;
+        }
+        .channel-info-mini .channel-avatar {
+            width: 48px;
+            height: 48px;
+        }
+        .video-stats {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Комментарии */
+        .comments-section { margin-top: 24px; }
+        .comment-input {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .comment-input textarea {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 40px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            resize: vertical;
+            min-height: 60px;
+            font-size: 0.95rem;
+        }
+        .comment-input button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .comment {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .comment-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-size: cover;
+        }
+        .comment-content {
+            background: var(--bg-elevated);
+            padding: 12px 16px;
+            border-radius: 24px;
+            flex: 1;
+        }
+        .delete-comment-btn {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        /* Страница канала */
+        .channel-banner {
+            width: 100%;
+            height: 150px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 24px;
+            margin-bottom: 16px;
+        }
+        .channel-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .channel-avatar-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-size: cover;
+        }
+        .channel-info h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        .channel-info .channel-id {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .channel-header button {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-primary);
+        }
+        .subscribe-btn-large {
+            background: linear-gradient(135deg, var(--danger), #b91c1c);
+            color: white !important;
+            border: none !important;
+        }
+
+        /* Сообщения (mobile) */
+        .messages-container {
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+            background: var(--bg-secondary);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .contacts-list {
+            display: flex;
+            overflow-x: auto;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .contact-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 70px;
+            cursor: pointer;
+        }
+        .contact-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-size: cover;
+        }
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-header {
+            padding: 12px;
+            font-weight: 600;
+        }
+        .messages-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .message {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            max-width: 80%;
+        }
+        .message.own {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .message-content {
+            background: var(--bg-elevated);
+            padding: 10px 14px;
+            border-radius: 20px;
+        }
+        .chat-input {
+            display: flex;
+            padding: 12px;
+            gap: 8px;
+        }
+        .chat-input textarea {
+            flex: 1;
+            padding: 10px;
+            border-radius: 40px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .chat-input button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0 20px;
+            border-radius: 40px;
+        }
+
+        /* Плейлисты */
+        .playlists-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .playlist-card {
+            display: flex;
+            gap: 12px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .playlist-cover {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            background-size: cover;
+        }
+
+        /* Модалки */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            backdrop-filter: blur(4px);
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--bg-secondary);
+            padding: 24px;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-content h3 { margin-bottom: 16px; }
+        .modal-content input, .modal-content textarea, .modal-content select {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            border-radius: 40px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        .modal-content button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+        .modal-content .cancel {
+            background: var(--bg-elevated);
+            color: var(--text-primary);
+        }
+
+        /* Адаптация для очень маленьких экранов */
+        @media (max-width: 400px) {
+            .logo span { display: none; }
+            .header-icons { gap: 8px; }
+        }
+
+        /* Уведомления */
+        .notification-popup {
+            position: fixed;
+            top: 80px;
+            right: 16px;
+            background: var(--accent);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            box-shadow: var(--shadow-hover);
+            z-index: 400;
+            display: none;
+            font-weight: 500;
+        }
+        .notification-popup.show { display: block; }
+
+        /* Реклама */
+        .ad-container {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border-radius: 24px;
+            padding: 16px;
+            margin-bottom: 16px;
+            color: white;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .ad-timer { font-size: 1.8rem; font-weight: 700; }
+        .skip-ad-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+        .skip-ad-btn:disabled { opacity: 0.5; }
+    </style>
+</head>
+<body>
+<div class="app">
+    <!-- Шапка -->
+    <header class="header">
+        <div class="logo" id="logoBtn">
+            <i class="fa-solid fa-play"></i>
+            <span>PopTube</span>
+        </div>
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Поиск...">
+                <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+        </div>
+        <div class="header-icons">
+            <button id="helpBtn"><i class="fa-regular fa-question-circle"></i></button>
+            <button id="themeToggle"><i class="fa-regular fa-sun"></i></button>
+            <button id="menuToggle"><i class="fa-solid fa-bars"></i></button>
+        </div>
+    </header>
+
+    <!-- Оверлей и боковое меню -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <div class="sidebar" id="sidebar">
+        <div class="nav-item active" data-page="homePage"><i class="fa-solid fa-house"></i><span>Главная</span></div>
+        <div class="nav-item" data-page="shortsPage"><i class="fa-solid fa-bolt"></i><span>Shorts</span></div>
+        <div class="nav-item" data-page="subscriptionsPage"><i class="fa-regular fa-circle-play"></i><span>Подписки</span></div>
+        <hr>
+        <div class="nav-item" data-page="historyPage"><i class="fa-regular fa-clock"></i><span>История</span></div>
+        <div class="nav-item" data-page="playlistsPage"><i class="fa-regular fa-star"></i><span>Плейлисты</span></div>
+        <div class="nav-item" data-page="likedPage"><i class="fa-regular fa-thumbs-up"></i><span>Понравившиеся</span></div>
+        <hr>
+        <div class="nav-item" data-page="messagesPage"><i class="fa-regular fa-envelope"></i><span>Сообщения</span></div>
+        <div class="nav-item" data-page="channelSearchPage"><i class="fa-solid fa-magnifying-glass"></i><span>Поиск каналов</span></div>
+        <hr>
+        <h4>Подписки</h4>
+        <div id="subscriptionsList"></div>
+        <div class="nav-item" id="requestsNav"><i class="fa-regular fa-user-plus"></i><span>Запросы</span></div>
+        <div class="nav-item" data-page="settingsPage"><i class="fa-solid fa-gear"></i><span>Настройки</span></div>
+        <div class="nav-item" id="currentUserAvatarSide"></div>
+    </div>
+
+    <!-- Основной контент -->
+    <main class="content" id="mainContent">
+        <!-- Главная -->
+        <div id="homePage" class="page active">
+            <div class="chips-wrapper">
+                <span class="chip active" data-filter="all">Все</span>
+                <span class="chip" data-filter="music">Музыка</span>
+                <span class="chip" data-filter="games">Игры</span>
+                <span class="chip" data-filter="other">Другое</span>
+                <button class="upload-home-btn" id="uploadHomeBtn"><i class="fa-solid fa-plus"></i> Загрузить</button>
+            </div>
+            <div class="video-grid" id="homeVideoGrid"></div>
+        </div>
+
+        <!-- Shorts -->
+        <div id="shortsPage" class="page">
+            <h2 style="margin-bottom:16px;">🔥 Shorts</h2>
+            <div class="video-grid" id="shortsVideoGrid"></div>
+        </div>
+
+        <!-- Подписки -->
+        <div id="subscriptionsPage" class="page">
+            <h2 style="margin-bottom:16px;">📺 Подписки</h2>
+            <div class="video-grid" id="subscriptionsVideoGrid"></div>
+        </div>
+
+        <!-- История -->
+        <div id="historyPage" class="page">
+            <h2 style="margin-bottom:16px;">🕒 История</h2>
+            <div class="video-grid" id="historyVideoGrid"></div>
+        </div>
+
+        <!-- Плейлисты -->
+        <div id="playlistsPage" class="page">
+            <h2 style="margin-bottom:16px;">📁 Плейлисты</h2>
+            <button class="upload-home-btn" id="createPlaylistBtn" style="margin-bottom:16px;"><i class="fa-solid fa-plus"></i> Создать</button>
+            <div class="playlists-grid" id="playlistsGrid"></div>
+        </div>
+
+        <!-- Понравившиеся -->
+        <div id="likedPage" class="page">
+            <h2 style="margin-bottom:16px;">❤️ Понравившиеся</h2>
+            <div class="video-grid" id="likedVideoGrid"></div>
+        </div>
+
+        <!-- Сообщения -->
+        <div id="messagesPage" class="page">
+            <h2 style="margin-bottom:16px;">💬 Сообщения</h2>
+            <div class="messages-container" id="messagesContainer"></div>
+        </div>
+
+        <!-- Поиск каналов -->
+        <div id="channelSearchPage" class="page">
+            <h2 style="margin-bottom:16px;">🔍 Поиск каналов</h2>
+            <div class="search-box" style="margin-bottom:20px;">
+                <input type="text" id="channelSearchInput" placeholder="ID канала...">
+                <button id="channelSearchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div id="channelSearchResults" class="channel-search-results"></div>
+        </div>
+
+        <!-- Страница видео -->
+        <div id="videoPage" class="page">
+            <div id="adContainer" class="ad-container">
+                <div class="ad-content">
+                    <i class="fa-solid fa-rectangle-ad"></i>
+                    <div>
+                        <h3>Реклама</h3>
+                        <p>Поддержите спонсоров</p>
+                    </div>
+                </div>
+                <div>
+                    <span class="ad-timer" id="adTimer">10</span> сек
+                    <button class="skip-ad-btn" id="skipAdBtn" disabled>Пропустить</button>
+                </div>
+            </div>
+            <div class="video-player"><video id="videoPlayer" controls src=""></video></div>
+            <div class="video-title-block" id="videoTitle"></div>
+            <div class="video-description" id="videoDescription"></div>
+            <div class="video-actions">
+                <button class="like-button" id="videoLikeBtn"><i class="fa-regular fa-thumbs-up"></i> <span id="videoLikes">0</span></button>
+                <button class="like-button" id="videoDislikeBtn"><i class="fa-regular fa-thumbs-down"></i> <span id="videoDislikes">0</span></button>
+                <button class="like-button" id="videoSubscribeBtn">Подписаться</button>
+            </div>
+            <div class="channel-info-mini" id="videoChannelInfo">
+                <div class="channel-avatar" id="videoChannelAvatar" data-channel=""></div>
+                <div>
+                    <strong id="videoChannelName"></strong><br>
+                    <span class="video-stats">
+                        <span><span id="videoViews">0</span> просмотров</span> • <span id="videoSubsCount">0</span> подписчиков • <span id="videoDate"></span>
+                    </span>
+                </div>
+            </div>
+            <div class="comments-section">
+                <h3>Комментарии</h3>
+                <div class="comment-input">
+                    <textarea id="commentText" placeholder="Ваш комментарий..."></textarea>
+                    <button id="addCommentBtn">Отправить</button>
+                </div>
+                <div id="commentsList"></div>
+            </div>
+        </div>
+
+        <!-- Страница канала -->
+        <div id="channelPage" class="page">
+            <div class="channel-banner" id="channelBanner"></div>
+            <div class="channel-header">
+                <div class="channel-avatar-large" id="channelAvatarLarge"></div>
+                <div class="channel-info">
+                    <h2 id="channelName"></h2>
+                    <div class="channel-id" id="channelId"></div>
+                    <span id="channelSubsCount">0</span> подписчиков
+                </div>
+                <button class="subscribe-btn-large" id="channelSubscribeBtn">Подписаться</button>
+                <button class="edit-profile-btn" id="editProfileBtn">Редактировать</button>
+                <button class="edit-profile-btn" id="uploadVideoBtnChannel">Загрузить</button>
+                <button class="edit-profile-btn" id="sendFriendRequestBtn">Запрос</button>
+            </div>
+            <div class="channel-videos"><h3>Видео</h3><div class="video-grid" id="channelVideosGrid"></div></div>
+        </div>
+
+        <!-- Настройки -->
+        <div id="settingsPage" class="page">
+            <h2 style="margin-bottom:16px;">⚙️ Настройки</h2>
+            <div class="settings-container">
+                <div class="settings-field">
+                    <label>ID канала</label>
+                    <input type="text" id="settingsChannelId">
+                </div>
+                <div class="settings-field">
+                    <label>Название канала</label>
+                    <input type="text" id="settingsChannelName">
+                </div>
+                <div class="settings-field">
+                    <label>Пароль</label>
+                    <input type="password" id="settingsPassword">
+                </div>
+                <div class="monetization-box">
+                    <p>В PopTube напрямую не работает монетизация. Используйте Boosty для поддержки.</p>
+                    <label>Ссылка на Boosty</label>
+                    <input type="url" id="boostyLink">
+                </div>
+                <button class="settings-save-btn" id="saveSettingsBtn">Сохранить</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальные окна -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <h3>⌨️ Горячие клавиши</h3>
+            <ul style="list-style:none; line-height:2;">
+                <li>Пробел — пауза / воспроизведение</li>
+                <li>← / → — перемотка на 5 сек</li>
+                <li>B / И — полноэкранный режим</li>
+                <li>Esc — выход из fullscreen</li>
+            </ul>
+            <button class="cancel" onclick="closeModal('helpModal')">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="playlistModal" class="modal">
+        <div class="modal-content">
+            <h3>Создать плейлист</h3>
+            <input type="text" id="playlistName" placeholder="Название">
+            <textarea id="playlistDesc" placeholder="Описание"></textarea>
+            <label>Обложка</label>
+            <input type="file" id="playlistCover" accept="image/*">
+            <button id="savePlaylistBtn">Создать</button>
+            <button class="cancel" onclick="closeModal('playlistModal')">Отмена</button>
+        </div>
+    </div>
+
+    <div id="addToPlaylistModal" class="modal">
+        <div class="modal-content">
+            <h3>Добавить в плейлист</h3>
+            <select id="playlistSelect"></select>
+            <button id="confirmAddToPlaylist">Добавить</button>
+            <button class="cancel" onclick="closeModal('addToPlaylistModal')">Отмена</button>
+        </div>
+    </div>
+
+    <div id="requestsModal" class="modal">
+        <div class="modal-content">
+            <h3>Запросы на подписку</h3>
+            <div id="requestsList"></div>
+            <button class="cancel" onclick="closeModal('requestsModal')">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <h3>Загрузить видео</h3>
+            <input type="file" id="videoFileInput" accept="video/*">
+            <input type="file" id="thumbnailFileInput" accept="image/*">
+            <div class="random-thumbs" id="uploadRandomThumbs"></div>
+            <input type="hidden" id="selectedRandomThumb">
+            <input type="text" id="videoTitleInput" placeholder="Название">
+            <textarea id="videoDescInput" placeholder="Описание"></textarea>
+            <div class="category-selector">
+                <label><input type="radio" name="category" value="other" checked> Другое</label>
+                <label><input type="radio" name="category" value="music"> Музыка</label>
+                <label><input type="radio" name="category" value="games"> Игры</label>
+            </div>
+            <div class="custom-category-input" style="display:none;"><input type="text" id="customCategory" placeholder="Своя категория"></div>
+            <label><input type="checkbox" id="isShortCheckbox"> Это Shorts</label>
+            <button id="saveVideoBtn">Опубликовать</button>
+            <button class="cancel" onclick="closeModal('uploadModal')">Отмена</button>
+        </div>
+    </div>
+
+    <div id="editVideoModal" class="modal">
+        <div class="modal-content">
+            <h3>Редактировать видео</h3>
+            <input type="hidden" id="editVideoId">
+            <input type="text" id="editVideoTitle" placeholder="Название">
+            <textarea id="editVideoDesc" placeholder="Описание"></textarea>
+            <select id="editCategorySelect">
+                <option value="other">Другое</option>
+                <option value="music">Музыка</option>
+                <option value="games">Игры</option>
+            </select>
+            <div class="custom-edit-category"><input type="text" id="editCustomCategory" placeholder="Своя категория"></div>
+            <input type="file" id="editThumbnailFile" accept="image/*">
+            <div class="random-thumbs" id="editRandomThumbs"></div>
+            <input type="hidden" id="editSelectedRandomThumb">
+            <button id="saveEditVideoBtn">Сохранить</button>
+            <button class="cancel" onclick="closeModal('editVideoModal')">Отмена</button>
+        </div>
+    </div>
+
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <h3>Редактировать профиль</h3>
+            <input type="text" id="newChannelName" placeholder="Новое название">
+            <input type="file" id="newAvatarFile" accept="image/*">
+            <input type="file" id="newBannerFile" accept="image/*">
+            <button id="saveProfileBtn">Сохранить</button>
+            <button class="cancel" onclick="closeModal('editProfileModal')">Отмена</button>
+        </div>
+    </div>
+
+    <div id="notificationPopup" class="notification-popup"></div>
+</div>
+
+<script>
+    (function() {
+        // ==================== Константы и утилиты ====================
+        const THEME_KEY = 'poptube_theme';
+        const LANG_KEY = 'poptube_lang';
+        const STORAGE_KEY = 'poptube_data';
+        const STATE_KEY = 'poptube_state';
+
+        // IndexedDB для видеофайлов (упрощённо, в мобильной версии оставим тот же код)
+        const DB_NAME = 'PopTubeDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'videos';
+        let db = null;
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => { db = request.result; resolve(db); };
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME))
+                        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                };
+            });
+        }
+
+        function saveVideoFileToDB(file) {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject('DB not open');
+                const reader = new FileReader();
+                reader.readAsArrayBuffer(file);
+                reader.onload = () => {
+                    const buffer = reader.result;
+                    const id = 'file_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    const transaction = db.transaction([STORE_NAME], 'readwrite');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.put({ id: id, data: buffer, type: file.type });
+                    request.onsuccess = () => resolve(id);
+                    request.onerror = () => reject(request.error);
+                };
+                reader.onerror = reject;
+            });
+        }
+
+        function getVideoFileFromDB(id) {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject('DB not open');
+                const transaction = db.transaction([STORE_NAME], 'readonly');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.get(id);
+                request.onsuccess = () => {
+                    if (request.result) {
+                        const blob = new Blob([request.result.data], { type: request.result.type });
+                        resolve(blob);
+                    } else reject('File not found');
+                };
+                request.onerror = reject;
+            });
+        }
+
+        function deleteVideoFileFromDB(fileId) {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject('DB not open');
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                const request = store.delete(fileId);
+                request.onsuccess = () => resolve();
+                request.onerror = reject;
+            });
+        }
+
+        // ---------- Локальное хранилище ----------
+        function saveToStorage() {
+            const data = {
+                currentUser: {
+                    id: currentUser.id,
+                    name: currentUser.name,
+                    avatar: currentUser.avatar,
+                    banner: currentUser.banner,
+                    subscriptions: currentUser.subscriptions,
+                    friendRequests: currentUser.friendRequests,
+                    password: currentUser.password,
+                    boostyLink: currentUser.boostyLink
+                },
+                channels: channels,
+                videos: videos.map(v => {
+                    const { videoUrl, ...rest } = v;
+                    return rest;
+                }),
+                comments: comments,
+                userLikes: userLikes,
+                watchHistory: watchHistory,
+                messages: messages,
+                playlists: playlists,
+                friendRequestsSent: friendRequestsSent
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function loadFromStorage() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    if (data.currentUser) {
+                        currentUser.id = data.currentUser.id;
+                        currentUser.name = data.currentUser.name;
+                        currentUser.avatar = data.currentUser.avatar;
+                        currentUser.banner = data.currentUser.banner;
+                        currentUser.subscriptions = data.currentUser.subscriptions || [];
+                        currentUser.friendRequests = data.currentUser.friendRequests || [];
+                        currentUser.password = data.currentUser.password || '';
+                        currentUser.boostyLink = data.currentUser.boostyLink || '';
+                    }
+                    if (data.channels) channels = data.channels;
+                    if (data.videos) {
+                        videos = data.videos;
+                        videos.forEach(v => {
+                            if (!v.publishedAt) v.publishedAt = Date.now() - 30*24*60*60*1000;
+                            if (!v.viewers) v.viewers = [];
+                        });
+                    }
+                    if (data.comments) comments = data.comments;
+                    if (data.userLikes) userLikes = data.userLikes;
+                    if (data.watchHistory) watchHistory = data.watchHistory;
+                    if (data.messages) messages = data.messages;
+                    if (data.playlists) playlists = data.playlists;
+                    if (data.friendRequestsSent) friendRequestsSent = data.friendRequestsSent;
+                } catch (e) { console.warn('Failed to load data', e); }
+            }
+        }
+
+        // Сохранение состояния страницы
+        function saveState() {
+            const state = {
+                page: lastPage,
+                search: document.getElementById('searchInput').value,
+                filter: currentFilter
+            };
+            if (lastPage === 'videoPage') {
+                state.videoId = currentVideoId;
+                if (videoPlayer && !isNaN(videoPlayer.currentTime))
+                    state.videoTime = videoPlayer.currentTime;
+            } else if (lastPage === 'channelPage') {
+                state.channelId = currentChannelId;
+            }
+            localStorage.setItem(STATE_KEY, JSON.stringify(state));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem(STATE_KEY);
+            if (saved) {
+                try { return JSON.parse(saved); } catch (e) { return null; }
+            }
+            return null;
+        }
+
+        // Генерация превью (canvas)
+        function generateThumbnailDataURL(text = 'Preview', width = 320, height = 180) {
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createLinearGradient(0, 0, width, height);
+            grad.addColorStop(0, '#3b82f6');
+            grad.addColorStop(1, '#8b5cf6');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, width/2, height/2);
+            return canvas.toDataURL();
+        }
+
+        // ---------- Данные ----------
+        const currentUser = {
+            id: 'popfan',
+            name: 'popfan',
+            avatar: generateThumbnailDataURL('U', 200, 200),
+            banner: generateThumbnailDataURL('Banner', 800, 200),
+            subscriptions: [],
+            friendRequests: [],
+            password: '',
+            boostyLink: ''
+        };
+
+        let channels = {
+            'tech': { name: 'Tech Insider', id: 'tech', avatar: generateThumbnailDataURL('TI', 200, 200), banner: generateThumbnailDataURL('Tech', 800, 200), subscribers: 15000, videos: [], password: '', boostyLink: '' },
+            'gadget': { name: 'GadgetGuru', id: 'gadget', avatar: generateThumbnailDataURL('GG', 200, 200), banner: generateThumbnailDataURL('Gadget', 800, 200), subscribers: 22000, videos: [], password: '', boostyLink: '' },
+            'sport': { name: 'SportVision', id: 'sport', avatar: generateThumbnailDataURL('SV', 200, 200), banner: generateThumbnailDataURL('Sport', 800, 200), subscribers: 80000, videos: [], password: '', boostyLink: '' }
+        };
+        channels[currentUser.id] = {
+            name: currentUser.name,
+            id: currentUser.id,
+            avatar: currentUser.avatar,
+            banner: currentUser.banner,
+            subscribers: 0,
+            videos: [],
+            password: currentUser.password,
+            boostyLink: currentUser.boostyLink
+        };
+
+        let videos = [];
+        let comments = {};
+        let userLikes = {};
+        let watchHistory = [];
+        let messages = {};
+        let playlists = [];
+        let friendRequestsSent = {};
+
+        loadFromStorage();
+
+        // Очистка демо
+        const demoIds = ['v1', 'v2', 'v3'];
+        videos = videos.filter(v => !demoIds.includes(v.id));
+        Object.keys(channels).forEach(chId => {
+            channels[chId].videos = channels[chId].videos.filter(id => !demoIds.includes(id));
+        });
+
+        // Синхронизация
+        videos.forEach(v => {
+            if (channels[v.channelId] && !channels[v.channelId].videos.includes(v.id))
+                channels[v.channelId].videos.push(v.id);
+        });
+
+        // Вспомогательные функции
+        function formatNumber(num) { return num >= 1000 ? (num/1000).toFixed(1) + 'K' : num; }
+        function formatDuration(seconds) {
+            if (!seconds || seconds === 0) return '00:00';
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+        }
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = Math.floor((now - date) / 1000);
+            if (diff < 60) return 'только что';
+            if (diff < 3600) return Math.floor(diff/60) + ' мин. назад';
+            if (diff < 86400) return Math.floor(diff/3600) + ' ч. назад';
+            if (diff < 2592000) return Math.floor(diff/86400) + ' дн. назад';
+            return date.toLocaleDateString();
+        }
+        function getVideoDurationFromFile(file) {
+            return new Promise((resolve) => {
+                const url = URL.createObjectURL(file);
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+                video.onloadedmetadata = () => { URL.revokeObjectURL(url); resolve(video.duration); };
+                video.onerror = () => resolve(0);
+                video.src = url;
+            });
+        }
+        async function updateAllVideoDurations() {
+            const promises = videos.map(async (video) => {
+                if (video.duration !== '00:00' || !video.fileId) return;
+                try {
+                    const blob = await getVideoFileFromDB(video.fileId);
+                    const file = new File([blob], 'video.mp4', { type: blob.type });
+                    const durationSec = await getVideoDurationFromFile(file);
+                    video.duration = formatDuration(durationSec);
+                } catch (err) {}
+            });
+            await Promise.all(promises);
+            saveToStorage();
+            renderAllGrids();
+        }
+
+        // Состояние
+        let currentVideoId = null;
+        let currentChannelId = null;
+        let lastPage = 'homePage';
+        let currentFilter = 'all';
+        let adInterval = null;
+
+        // Элементы DOM
+        const homeGrid = document.getElementById('homeVideoGrid');
+        const shortsGrid = document.getElementById('shortsVideoGrid');
+        const subsGrid = document.getElementById('subscriptionsVideoGrid');
+        const historyGrid = document.getElementById('historyVideoGrid');
+        const likedGrid = document.getElementById('likedVideoGrid');
+        const playlistsGrid = document.getElementById('playlistsGrid');
+        const messagesContainer = document.getElementById('messagesContainer');
+        const channelSearchResults = document.getElementById('channelSearchResults');
+        const logoBtn = document.getElementById('logoBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const langToggle = null; // не используется
+        const notifyIcon = null; // упростим
+        const notificationPopup = document.getElementById('notificationPopup');
+        const currentUserAvatar = document.getElementById('currentUserAvatar');
+        const uploadHomeBtn = document.getElementById('uploadHomeBtn');
+        const uploadVideoBtnChannel = document.getElementById('uploadVideoBtnChannel');
+        const editProfileBtn = document.getElementById('editProfileBtn');
+        const sendFriendRequestBtn = document.getElementById('sendFriendRequestBtn');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const subscriptionsListDiv = document.getElementById('subscriptionsList');
+        const helpBtn = document.getElementById('helpBtn');
+        const helpModal = document.getElementById('helpModal');
+        const createPlaylistBtn = document.getElementById('createPlaylistBtn');
+        const playlistModal = document.getElementById('playlistModal');
+        const addToPlaylistModal = document.getElementById('addToPlaylistModal');
+        const requestsModal = document.getElementById('requestsModal');
+        const searchInput = document.getElementById('searchInput');
+        const channelSearchInput = document.getElementById('channelSearchInput');
+        const channelSearchBtn = document.getElementById('channelSearchBtn');
+        const videoViewsSpan = document.getElementById('videoViews');
+        const videoDateSpan = document.getElementById('videoDate');
+        const settingsBtn = null; // через меню
+        const settingsChannelId = document.getElementById('settingsChannelId');
+        const settingsChannelName = document.getElementById('settingsChannelName');
+        const settingsPassword = document.getElementById('settingsPassword');
+        const boostyLink = document.getElementById('boostyLink');
+        const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+        const adContainer = document.getElementById('adContainer');
+        const adTimerSpan = document.getElementById('adTimer');
+        const skipAdBtn = document.getElementById('skipAdBtn');
+
+        // Меню
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            sidebarOverlay.classList.toggle('active');
+        });
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('active');
+        });
+
+        // Аватарка в шапке
+        if (currentUserAvatar) {
+            currentUserAvatar.style.backgroundImage = `url('${currentUser.avatar}')`;
+            currentUserAvatar.addEventListener('click', () => openChannelPage(currentUser.id));
+        }
+
+        // Тёмная тема
+        let isDark = localStorage.getItem(THEME_KEY) === 'dark';
+        if (isDark) document.body.classList.add('dark');
+        themeToggle.className = isDark ? 'fa-regular fa-moon' : 'fa-regular fa-sun';
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            const nowDark = document.body.classList.contains('dark');
+            themeToggle.className = nowDark ? 'fa-regular fa-moon' : 'fa-regular fa-sun';
+            localStorage.setItem(THEME_KEY, nowDark ? 'dark' : 'light');
+        });
+
+        // Уведомления
+        function showNotification(msg) {
+            notificationPopup.textContent = msg;
+            notificationPopup.classList.add('show');
+            setTimeout(() => notificationPopup.classList.remove('show'), 2500);
+        }
+
+        // Рендер сеток
+        function renderHomeGrid() {
+            let filtered = videos.filter(v => !v.isShort);
+            if (currentFilter !== 'all') filtered = filtered.filter(v => v.category === currentFilter);
+            homeGrid.innerHTML = filtered.map(v => videoCardHTML(v, v.channelId === currentUser.id)).join('');
+        }
+        function renderAllGrids() {
+            renderHomeGrid();
+            shortsGrid.innerHTML = videos.filter(v => v.isShort).map(v => videoCardHTML(v, v.channelId === currentUser.id)).join('');
+            const subscribedChannels = currentUser.subscriptions;
+            subsGrid.innerHTML = videos.filter(v => subscribedChannels.includes(v.channelId)).map(v => videoCardHTML(v, v.channelId === currentUser.id)).join('');
+            historyGrid.innerHTML = videos.filter(v => watchHistory.includes(v.id)).map(v => videoCardHTML(v, v.channelId === currentUser.id)).join('');
+            const likedIds = Object.keys(userLikes).filter(id => userLikes[id] === 'like');
+            likedGrid.innerHTML = videos.filter(v => likedIds.includes(v.id)).map(v => videoCardHTML(v, v.channelId === currentUser.id)).join('');
+        }
+
+        function videoCardHTML(v, isOwner) {
+            let actions = '';
+            if (isOwner) {
+                actions = `<div class="video-actions-card">
+                    <button class="edit-video-btn" data-video-id="${v.id}"><i class="fa-solid fa-pencil"></i></button>
+                    <button class="delete-video-btn" data-video-id="${v.id}"><i class="fa-solid fa-trash"></i></button>
+                    <button class="add-to-playlist-btn" data-video-id="${v.id}"><i class="fa-solid fa-list"></i></button>
+                </div>`;
+            } else {
+                actions = `<div class="video-actions-card">
+                    <button class="add-to-playlist-btn" data-video-id="${v.id}"><i class="fa-solid fa-list"></i></button>
+                </div>`;
+            }
+            return `<div class="video-card" data-video-id="${v.id}">
+                ${actions}
+                <div class="thumbnail"><img src="${v.thumb}" loading="lazy"><span class="duration">${v.duration || '00:00'}</span></div>
+                <div class="video-info"><div class="channel-avatar" style="background-image: url('${v.channelAvatar}')" data-channel="${v.channelId}"></div>
+                <div class="video-details"><div class="video-title">${v.title}</div><div class="channel-name" data-channel="${v.channelId}">${v.channelName}</div>
+                <div class="video-meta"><span>${v.views || 0} просмотров • ${formatDate(v.publishedAt)}</span></div></div></div></div>`;
+        }
+
+        // Навигация по страницам
+        function showPage(pageId) {
+            if (!videoPlayer.paused) videoPlayer.pause();
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            lastPage = pageId;
+            saveState();
+            // Закрыть меню при переходе
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('active');
+            if (pageId === 'videoPage') videoPlayer.focus();
+            if (pageId === 'messagesPage') renderMessagesPage();
+            if (pageId === 'playlistsPage') renderPlaylists();
+            if (pageId === 'settingsPage') {
+                settingsChannelId.value = currentUser.id;
+                settingsChannelName.value = currentUser.name;
+                settingsPassword.value = currentUser.password || '';
+                boostyLink.value = currentUser.boostyLink || '';
+            }
+        }
+
+        // Обработчики кликов (делегирование)
+        document.addEventListener('click', e => {
+            const card = e.target.closest('.video-card');
+            if (card && !e.target.closest('button')) {
+                const videoId = card.dataset.videoId;
+                if (videoId) openVideoPage(videoId);
+                return;
+            }
+            const channelName = e.target.closest('.channel-name');
+            if (channelName) {
+                const channelId = channelName.dataset.channel;
+                if (channelId) openChannelPage(channelId);
+                return;
+            }
+            const avatar = e.target.closest('.channel-avatar');
+            if (avatar && avatar.dataset.channel) {
+                openChannelPage(avatar.dataset.channel);
+                return;
+            }
+            if (e.target.closest('.edit-video-btn')) {
+                const btn = e.target.closest('.edit-video-btn');
+                const videoId = btn.dataset.videoId;
+                e.stopPropagation();
+                openEditVideoModal(videoId);
+                return;
+            }
+            if (e.target.closest('.delete-video-btn')) {
+                const btn = e.target.closest('.delete-video-btn');
+                const videoId = btn.dataset.videoId;
+                e.stopPropagation();
+                deleteVideo(videoId);
+                return;
+            }
+            if (e.target.closest('.add-to-playlist-btn')) {
+                const btn = e.target.closest('.add-to-playlist-btn');
+                const videoId = btn.dataset.videoId;
+                e.stopPropagation();
+                openAddToPlaylistModal(videoId);
+                return;
+            }
+            if (e.target.closest('.delete-comment-btn')) {
+                const btn = e.target.closest('.delete-comment-btn');
+                const videoId = btn.dataset.videoId;
+                const index = btn.dataset.index;
+                e.stopPropagation();
+                deleteComment(videoId, index);
+                return;
+            }
+            if (e.target.closest('.chip')) {
+                const chip = e.target.closest('.chip');
+                const filter = chip.dataset.filter;
+                if (filter) {
+                    document.querySelectorAll('.chip').forEach(ch => ch.classList.remove('active'));
+                    chip.classList.add('active');
+                    currentFilter = filter;
+                    renderHomeGrid();
+                    saveState();
+                }
+                return;
+            }
+            if (e.target.closest('.channel-result-item')) {
+                const item = e.target.closest('.channel-result-item');
+                const channelId = item.dataset.channelId;
+                if (channelId) openChannelPage(channelId);
+                return;
+            }
+            const navItem = e.target.closest('.nav-item');
+            if (navItem) {
+                const page = navItem.dataset.page;
+                if (page) {
+                    showPage(page);
+                    e.preventDefault();
+                }
+                const channel = navItem.dataset.channel;
+                if (channel) openChannelPage(channel);
+            }
+        });
+
+        logoBtn.addEventListener('click', () => {
+            showPage('homePage');
+            searchInput.value = '';
+            currentFilter = 'all';
+            document.querySelectorAll('.chip').forEach(ch => ch.classList.remove('active'));
+            document.querySelector('.chip[data-filter="all"]')?.classList.add('active');
+            renderHomeGrid();
+            saveState();
+        });
+
+        // Поиск каналов
+        channelSearchBtn.addEventListener('click', () => {
+            const query = channelSearchInput.value.toLowerCase().trim();
+            const results = Object.values(channels).filter(ch => ch.id.toLowerCase().includes(query) || ch.name.toLowerCase().includes(query));
+            channelSearchResults.innerHTML = results.map(ch => `
+                <div class="channel-result-item" data-channel-id="${ch.id}">
+                    <div class="channel-avatar" style="width:50px; height:50px; background-image:url('${ch.avatar}')"></div>
+                    <div><h4>${ch.name}</h4><p>ID: ${ch.id}</p></div>
+                </div>
+            `).join('');
+        });
+
+        // Поиск видео
+        document.getElementById('searchBtn').addEventListener('click', () => {
+            const query = searchInput.value.toLowerCase();
+            const filtered = videos.filter(v => v.title.toLowerCase().includes(query));
+            homeGrid.innerHTML = filtered.map(v => videoCardHTML(v, v.channelId === currentUser.id)).join('');
+            saveState();
+        });
+
+        // Сохранение настроек
+        saveSettingsBtn.addEventListener('click', () => {
+            const newId = settingsChannelId.value.trim();
+            const newName = settingsChannelName.value.trim();
+            const newPassword = settingsPassword.value;
+            const newBoosty = boostyLink.value.trim();
+            if (newId && newId !== currentUser.id) {
+                if (channels[newId]) { alert('ID занят'); return; }
+                const oldId = currentUser.id;
+                delete channels[oldId];
+                currentUser.id = newId;
+                channels[newId] = {
+                    name: newName || currentUser.name,
+                    id: newId,
+                    avatar: currentUser.avatar,
+                    banner: currentUser.banner,
+                    subscribers: channels[oldId]?.subscribers || 0,
+                    videos: videos.filter(v => v.channelId === oldId).map(v => v.id),
+                    password: newPassword,
+                    boostyLink: newBoosty
+                };
+                videos.forEach(v => { if (v.channelId === oldId) { v.channelId = newId; v.channelName = newName || currentUser.name; } });
+            }
+            if (newName) { currentUser.name = newName; if (channels[currentUser.id]) channels[currentUser.id].name = newName; }
+            if (newPassword) { currentUser.password = newPassword; if (channels[currentUser.id]) channels[currentUser.id].password = newPassword; }
+            if (newBoosty !== undefined) { currentUser.boostyLink = newBoosty; if (channels[currentUser.id]) channels[currentUser.id].boostyLink = newBoosty; }
+            saveToStorage();
+            showNotification('Настройки сохранены');
+            if (currentChannelId === currentUser.id) openChannelPage(currentUser.id);
+        });
+
+        // Реклама
+        function showAd(callback) {
+            const adDuration = 10, skipAfter = 5;
+            let remaining = adDuration;
+            adContainer.style.display = 'flex';
+            adTimerSpan.textContent = remaining;
+            skipAdBtn.disabled = true;
+            if (adInterval) clearInterval(adInterval);
+            adInterval = setInterval(() => {
+                remaining--;
+                adTimerSpan.textContent = remaining;
+                if (remaining <= 0) { clearInterval(adInterval); adContainer.style.display = 'none'; callback(); }
+            }, 1000);
+            setTimeout(() => { skipAdBtn.disabled = false; }, skipAfter * 1000);
+            skipAdBtn.onclick = () => { clearInterval(adInterval); adContainer.style.display = 'none'; callback(); };
+        }
+
+        // Открыть видео
+        async function openVideoPage(videoId, restoreTime = null) {
+            if (currentVideoId) {
+                const prevVideo = videos.find(v => v.id === currentVideoId);
+                if (prevVideo && prevVideo.videoUrl?.startsWith('blob:')) {
+                    URL.revokeObjectURL(prevVideo.videoUrl);
+                    prevVideo.videoUrl = null;
+                }
+            }
+            currentVideoId = videoId;
+            const video = videos.find(v => v.id === videoId);
+            if (!video) return;
+
+            const viewerId = currentUser.id;
+            if (!video.viewers) video.viewers = [];
+            if (!video.viewers.includes(viewerId)) {
+                video.viewers.push(viewerId);
+                video.views = (video.views || 0) + 1;
+            }
+
+            if (!watchHistory.includes(videoId)) watchHistory.push(videoId);
+            else { watchHistory = watchHistory.filter(id => id !== videoId); watchHistory.push(videoId); }
+            renderHistoryGrid();
+            saveToStorage();
+
+            document.getElementById('videoTitle').textContent = video.title;
+            document.getElementById('videoDescription').textContent = video.description || '';
+            document.getElementById('videoLikes').textContent = formatNumber(video.likes);
+            document.getElementById('videoDislikes').textContent = formatNumber(video.dislikes);
+            document.getElementById('videoChannelName').textContent = video.channelName;
+            const avatarEl = document.getElementById('videoChannelAvatar');
+            avatarEl.style.backgroundImage = `url('${video.channelAvatar}')`;
+            avatarEl.dataset.channel = video.channelId;
+
+            const channel = channels[video.channelId];
+            document.getElementById('videoSubsCount').textContent = formatNumber(channel.subscribers);
+            videoViewsSpan.textContent = video.views || 0;
+            videoDateSpan.textContent = formatDate(video.publishedAt);
+
+            const subBtn = document.getElementById('videoSubscribeBtn');
+            if (video.channelId === currentUser.id) { subBtn.classList.add('hidden'); subBtn.style.display = 'none'; }
+            else {
+                subBtn.classList.remove('hidden');
+                subBtn.style.display = '';
+                const isSubscribed = currentUser.subscriptions.includes(video.channelId);
+                subBtn.textContent = isSubscribed ? 'Отписаться' : 'Подписаться';
+                subBtn.classList.toggle('subscribed', isSubscribed);
+                subBtn.onclick = () => toggleSubscribe(video.channelId);
+            }
+
+            const playVideo = () => {
+                if (video.videoUrl && !video.videoUrl.startsWith('blob:')) {
+                    videoPlayer.src = video.videoUrl;
+                    videoPlayer.load();
+                } else if (video.fileId) {
+                    getVideoFileFromDB(video.fileId).then(blob => {
+                        const url = URL.createObjectURL(blob);
+                        video.videoUrl = url;
+                        videoPlayer.src = url;
+                        videoPlayer.load();
+                    }).catch(err => { videoPlayer.src = ''; });
+                } else videoPlayer.src = '';
+                if (restoreTime !== null && !isNaN(restoreTime)) {
+                    const seek = () => { if (videoPlayer.duration >= restoreTime) videoPlayer.currentTime = restoreTime; };
+                    if (videoPlayer.readyState >= 1) seek(); else videoPlayer.addEventListener('loadedmetadata', seek, { once: true });
+                }
+            };
+            if (Math.random() < 0.3) showAd(playVideo); else playVideo();
+
+            const likeBtn = document.getElementById('videoLikeBtn');
+            const dislikeBtn = document.getElementById('videoDislikeBtn');
+            likeBtn.classList.remove('liked'); dislikeBtn.classList.remove('liked');
+            likeBtn.querySelector('i').className = 'fa-regular fa-thumbs-up';
+            dislikeBtn.querySelector('i').className = 'fa-regular fa-thumbs-down';
+            const userVote = userLikes[videoId];
+            if (userVote === 'like') {
+                likeBtn.classList.add('liked');
+                likeBtn.querySelector('i').className = 'fa-solid fa-thumbs-up';
+            } else if (userVote === 'dislike') {
+                dislikeBtn.classList.add('liked');
+                dislikeBtn.querySelector('i').className = 'fa-solid fa-thumbs-down';
+            }
+
+            renderComments(videoId);
+            showPage('videoPage');
+        }
+
+        // Лайк / дизлайк
+        document.getElementById('videoLikeBtn').addEventListener('click', () => {
+            if (!currentVideoId) return;
+            const video = videos.find(v => v.id === currentVideoId);
+            const current = userLikes[currentVideoId];
+            if (current === 'like') { video.likes--; delete userLikes[currentVideoId]; }
+            else {
+                if (current === 'dislike') video.dislikes--;
+                video.likes++;
+                userLikes[currentVideoId] = 'like';
+            }
+            document.getElementById('videoLikes').textContent = formatNumber(video.likes);
+            document.getElementById('videoDislikes').textContent = formatNumber(video.dislikes);
+            document.getElementById('videoLikeBtn').classList.toggle('liked', userLikes[currentVideoId] === 'like');
+            document.getElementById('videoDislikeBtn').classList.remove('liked');
+            document.getElementById('videoLikeBtn').querySelector('i').className = userLikes[currentVideoId] === 'like' ? 'fa-solid fa-thumbs-up' : 'fa-regular fa-thumbs-up';
+            document.getElementById('videoDislikeBtn').querySelector('i').className = 'fa-regular fa-thumbs-down';
+            saveToStorage(); renderAllGrids();
+        });
+        document.getElementById('videoDislikeBtn').addEventListener('click', () => {
+            if (!currentVideoId) return;
+            const video = videos.find(v => v.id === currentVideoId);
+            const current = userLikes[currentVideoId];
+            if (current === 'dislike') { video.dislikes--; delete userLikes[currentVideoId]; }
+            else {
+                if (current === 'like') video.likes--;
+                video.dislikes++;
+                userLikes[currentVideoId] = 'dislike';
+            }
+            document.getElementById('videoLikes').textContent = formatNumber(video.likes);
+            document.getElementById('videoDislikes').textContent = formatNumber(video.dislikes);
+            document.getElementById('videoDislikeBtn').classList.toggle('liked', userLikes[currentVideoId] === 'dislike');
+            document.getElementById('videoLikeBtn').classList.remove('liked');
+            document.getElementById('videoDislikeBtn').querySelector('i').className = userLikes[currentVideoId] === 'dislike' ? 'fa-solid fa-thumbs-down' : 'fa-regular fa-thumbs-down';
+            document.getElementById('videoLikeBtn').querySelector('i').className = 'fa-regular fa-thumbs-up';
+            saveToStorage(); renderAllGrids();
+        });
+
+        // Комментарии
+        function renderComments(videoId) {
+            const list = document.getElementById('commentsList');
+            const videoComments = comments[videoId] || [];
+            list.innerHTML = videoComments.map((c, index) => `
+                <div class="comment">
+                    <div class="comment-avatar" style="background-image: url('${c.avatar || currentUser.avatar}')"></div>
+                    <div class="comment-content">
+                        <div class="comment-author">${c.author}</div>
+                        <div class="comment-text">${c.text}</div>
+                    </div>
+                    ${c.author === currentUser.name ? `<button class="delete-comment-btn" data-video-id="${videoId}" data-index="${index}"><i class="fa-solid fa-trash"></i></button>` : ''}
+                </div>
+            `).join('');
+        }
+        function deleteComment(videoId, index) {
+            if (!comments[videoId]) return;
+            comments[videoId].splice(index, 1);
+            if (comments[videoId].length === 0) delete comments[videoId];
+            renderComments(videoId);
+            saveToStorage();
+        }
+        document.getElementById('addCommentBtn').addEventListener('click', () => {
+            const text = document.getElementById('commentText').value.trim();
+            if (!text || !currentVideoId) return;
+            if (!comments[currentVideoId]) comments[currentVideoId] = [];
+            comments[currentVideoId].push({ author: currentUser.name, text, avatar: currentUser.avatar });
+            renderComments(currentVideoId);
+            document.getElementById('commentText').value = '';
+            saveToStorage();
+        });
+
+        // Канал
+        function openChannelPage(channelId) {
+            currentChannelId = channelId;
+            const channel = channels[channelId];
+            if (!channel) return;
+            document.getElementById('channelName').textContent = channel.name;
+            document.getElementById('channelId').textContent = `ID: ${channel.id}`;
+            document.getElementById('channelAvatarLarge').style.backgroundImage = `url('${channel.avatar}')`;
+            document.getElementById('channelBanner').style.backgroundImage = `url('${channel.banner}')`;
+            document.getElementById('channelSubsCount').textContent = formatNumber(channel.subscribers);
+
+            const subBtn = document.getElementById('channelSubscribeBtn');
+            const editBtn = document.getElementById('editProfileBtn');
+            const uploadBtn = document.getElementById('uploadVideoBtnChannel');
+            const requestBtn = document.getElementById('sendFriendRequestBtn');
+
+            if (channelId === currentUser.id) {
+                subBtn.classList.add('hidden'); subBtn.style.display = 'none';
+                editBtn.style.display = 'inline-block';
+                uploadBtn.style.display = 'inline-block';
+                requestBtn.style.display = 'none';
+            } else {
+                subBtn.classList.remove('hidden'); subBtn.style.display = '';
+                const isSubscribed = currentUser.subscriptions.includes(channelId);
+                subBtn.textContent = isSubscribed ? 'Отписаться' : 'Подписаться';
+                subBtn.classList.toggle('subscribed', isSubscribed);
+                subBtn.onclick = () => toggleSubscribe(channelId);
+                editBtn.style.display = 'none';
+                uploadBtn.style.display = 'none';
+                requestBtn.style.display = 'inline-block';
+                requestBtn.onclick = () => sendFriendRequest(channelId);
+            }
+
+            const channelVideos = videos.filter(v => channel.videos.includes(v.id));
+            document.getElementById('channelVideosGrid').innerHTML = channelVideos.map(v => videoCardHTML(v, v.channelId === currentUser.id)).join('');
+            showPage('channelPage');
+            saveState();
+        }
+
+        function toggleSubscribe(channelId) {
+            if (channelId === currentUser.id) return;
+            const idx = currentUser.subscriptions.indexOf(channelId);
+            if (idx === -1) {
+                currentUser.subscriptions.push(channelId);
+                if (channels[channelId]) channels[channelId].subscribers++;
+            } else {
+                currentUser.subscriptions.splice(idx, 1);
+                if (channels[channelId]) channels[channelId].subscribers--;
+            }
+            updateSubscriptionsList();
+            if (currentChannelId === channelId) openChannelPage(channelId);
+            if (currentVideoId) {
+                const video = videos.find(v => v.id === currentVideoId);
+                if (video?.channelId === channelId) openVideoPage(currentVideoId);
+            }
+            saveToStorage();
+        }
+
+        function updateSubscriptionsList() {
+            const subs = currentUser.subscriptions;
+            subscriptionsListDiv.innerHTML = subs.map(chId => {
+                const ch = channels[chId];
+                if (!ch) return '';
+                return `<div class="nav-item" data-channel="${chId}"><i class="fa-regular fa-user"></i><span>${ch.name}</span></div>`;
+            }).join('');
+        }
+
+        // Запросы на подписку
+        function sendFriendRequest(channelId) {
+            if (friendRequestsSent[channelId]) { showNotification('Запрос уже отправлен'); return; }
+            if (!channels[channelId].friendRequests) channels[channelId].friendRequests = [];
+            channels[channelId].friendRequests.push(currentUser.id);
+            friendRequestsSent[channelId] = true;
+            saveToStorage();
+            showNotification('Запрос отправлен');
+        }
+        function showRequestsModal() {
+            const list = document.getElementById('requestsList');
+            const requests = currentUser.friendRequests || [];
+            list.innerHTML = requests.map(chId => {
+                const ch = channels[chId];
+                if (!ch) return '';
+                return `<div style="display:flex; align-items:center; gap:16px; margin-bottom:16px;">
+                    <div class="channel-avatar" style="width:50px; height:50px; background-image:url('${ch.avatar}')"></div>
+                    <span>${ch.name}</span>
+                    <button class="accept-request" data-channel="${chId}">Принять</button>
+                    <button class="reject-request" data-channel="${chId}">Отклонить</button>
+                </div>`;
+            }).join('');
+            requestsModal.classList.add('active');
+        }
+        document.addEventListener('click', e => {
+            if (e.target.classList.contains('accept-request')) {
+                const chId = e.target.dataset.channel;
+                currentUser.subscriptions.push(chId);
+                if (!channels[chId].subscriptions) channels[chId].subscriptions = [];
+                channels[chId].subscriptions.push(currentUser.id);
+                currentUser.friendRequests = currentUser.friendRequests.filter(id => id !== chId);
+                delete friendRequestsSent[chId];
+                saveToStorage();
+                showRequestsModal();
+                updateSubscriptionsList();
+            }
+            if (e.target.classList.contains('reject-request')) {
+                const chId = e.target.dataset.channel;
+                currentUser.friendRequests = currentUser.friendRequests.filter(id => id !== chId);
+                delete friendRequestsSent[chId];
+                saveToStorage();
+                showRequestsModal();
+            }
+        });
+        document.getElementById('requestsNav').addEventListener('click', showRequestsModal);
+
+        // Загрузка видео
+        function openUploadModal() {
+            document.getElementById('selectedRandomThumb').value = '';
+            generateRandomThumbs('uploadRandomThumbs', 'selectedRandomThumb');
+            document.getElementById('uploadModal').classList.add('active');
+        }
+        uploadHomeBtn.addEventListener('click', openUploadModal);
+        if (uploadVideoBtnChannel) uploadVideoBtnChannel.addEventListener('click', openUploadModal);
+
+        // Категории
+        document.querySelectorAll('input[name="category"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const customDiv = document.querySelector('.custom-category-input');
+                if (e.target.value === 'other') customDiv.style.display = 'block';
+                else customDiv.style.display = 'none';
+            });
+        });
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+            });
+        }
+
+        document.getElementById('saveVideoBtn').addEventListener('click', async () => {
+            const title = document.getElementById('videoTitleInput').value.trim();
+            if (!title) return alert('Введите название');
+            const videoFile = document.getElementById('videoFileInput').files[0];
+            if (!videoFile) return alert('Выберите видео');
+            const thumbFile = document.getElementById('thumbnailFileInput').files[0];
+            const selectedRandom = document.getElementById('selectedRandomThumb').value;
+            if (!thumbFile && !selectedRandom) return alert('Выберите превью');
+            const isShort = document.getElementById('isShortCheckbox').checked;
+            const durationSec = await getVideoDurationFromFile(videoFile);
+            if (isShort && durationSec > 60) {
+                if (!confirm('Видео длиннее 1 минуты. Всё равно как Shorts?')) return;
+            }
+            const categoryRadio = document.querySelector('input[name="category"]:checked');
+            let category = categoryRadio ? categoryRadio.value : 'other';
+            if (category === 'other') {
+                const custom = document.getElementById('customCategory').value.trim();
+                if (custom) category = custom;
+            }
+            let thumbUrl;
+            if (thumbFile) thumbUrl = await fileToBase64(thumbFile);
+            else thumbUrl = selectedRandom;
+            let fileId;
+            try { fileId = await saveVideoFileToDB(videoFile); }
+            catch (err) { return alert('Ошибка сохранения'); }
+            const newVideo = {
+                id: 'v' + Date.now(),
+                title,
+                description: document.getElementById('videoDescInput').value.trim(),
+                channelId: currentUser.id,
+                channelName: currentUser.name,
+                channelAvatar: currentUser.avatar,
+                views: 0,
+                viewers: [],
+                publishedAt: Date.now(),
+                duration: formatDuration(durationSec),
+                thumb: thumbUrl,
+                fileId,
+                likes: 0,
+                dislikes: 0,
+                isShort: isShort,
+                category: category
+            };
+            videos.push(newVideo);
+            if (!channels[currentUser.id].videos) channels[currentUser.id].videos = [];
+            channels[currentUser.id].videos.push(newVideo.id);
+            renderAllGrids();
+            if (currentChannelId === currentUser.id) openChannelPage(currentUser.id);
+            saveToStorage();
+            closeModal('uploadModal');
+        });
+
+        function generateRandomThumbs(containerId, selectedInputId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '';
+            for (let i = 0; i < 3; i++) {
+                const img = document.createElement('img');
+                img.src = generateThumbnailDataURL(`🎬 ${i+1}`, 320, 180);
+                img.className = 'random-thumb';
+                img.dataset.url = img.src;
+                img.addEventListener('click', () => {
+                    document.querySelectorAll(`#${containerId} .random-thumb`).forEach(th => th.classList.remove('selected'));
+                    img.classList.add('selected');
+                    document.getElementById(selectedInputId).value = img.dataset.url;
+                });
+                container.appendChild(img);
+            }
+        }
+
+        // Редактирование видео (упрощённо)
+        async function openEditVideoModal(videoId) {
+            const video = videos.find(v => v.id === videoId);
+            if (!video) return;
+            document.getElementById('editVideoId').value = video.id;
+            document.getElementById('editVideoTitle').value = video.title || '';
+            document.getElementById('editVideoDesc').value = video.description || '';
+            const select = document.getElementById('editCategorySelect');
+            if (['music','games','other'].includes(video.category)) select.value = video.category;
+            else { select.value = 'other'; document.getElementById('editCustomCategory').value = video.category; }
+            generateRandomThumbs('editRandomThumbs', 'editSelectedRandomThumb');
+            document.getElementById('editVideoModal').classList.add('active');
+        }
+        document.getElementById('saveEditVideoBtn').addEventListener('click', async () => {
+            const videoId = document.getElementById('editVideoId').value;
+            const video = videos.find(v => v.id === videoId);
+            if (!video) return;
+            const newTitle = document.getElementById('editVideoTitle').value.trim();
+            if (newTitle) video.title = newTitle;
+            video.description = document.getElementById('editVideoDesc').value.trim();
+            const thumbFile = document.getElementById('editThumbnailFile').files[0];
+            const selectedRandom = document.getElementById('editSelectedRandomThumb').value;
+            if (thumbFile) video.thumb = await fileToBase64(thumbFile);
+            else if (selectedRandom) video.thumb = selectedRandom;
+            const catSelect = document.getElementById('editCategorySelect');
+            let category = catSelect.value;
+            if (category === 'other') {
+                const custom = document.getElementById('editCustomCategory').value.trim();
+                if (custom) category = custom;
+            }
+            video.category = category;
+            video.channelAvatar = channels[video.channelId].avatar;
+            renderAllGrids();
+            if (currentChannelId === video.channelId) openChannelPage(video.channelId);
+            if (currentVideoId === video.id) openVideoPage(video.id);
+            saveToStorage();
+            closeModal('editVideoModal');
+        });
+
+        // Удаление видео
+        async function deleteVideo(videoId) {
+            if (!confirm('Удалить видео?')) return;
+            const idx = videos.findIndex(v => v.id === videoId);
+            if (idx === -1) return;
+            const video = videos[idx];
+            if (video.videoUrl?.startsWith('blob:')) URL.revokeObjectURL(video.videoUrl);
+            if (channels[video.channelId]) {
+                const vidIdx = channels[video.channelId].videos.indexOf(videoId);
+                if (vidIdx !== -1) channels[video.channelId].videos.splice(vidIdx, 1);
+            }
+            videos.splice(idx, 1);
+            if (video.fileId && db) await deleteVideoFileFromDB(video.fileId).catch(console.error);
+            renderAllGrids();
+            if (currentChannelId === video.channelId) openChannelPage(video.channelId);
+            if (currentVideoId === videoId) showPage('homePage');
+            saveToStorage();
+        }
+
+        // Редактирование профиля
+        editProfileBtn.addEventListener('click', () => {
+            document.getElementById('newChannelName').value = currentUser.name;
+            document.getElementById('editProfileModal').classList.add('active');
+        });
+        document.getElementById('saveProfileBtn').addEventListener('click', async () => {
+            const newName = document.getElementById('newChannelName').value.trim();
+            const avatarFile = document.getElementById('newAvatarFile').files[0];
+            const bannerFile = document.getElementById('newBannerFile').files[0];
+            if (newName) {
+                currentUser.name = newName;
+                channels[currentUser.id].name = newName;
+            }
+            if (avatarFile) {
+                const avatarUrl = await fileToBase64(avatarFile);
+                currentUser.avatar = avatarUrl;
+                channels[currentUser.id].avatar = avatarUrl;
+                currentUserAvatar.style.backgroundImage = `url('${avatarUrl}')`;
+            }
+            if (bannerFile) {
+                const bannerUrl = await fileToBase64(bannerFile);
+                currentUser.banner = bannerUrl;
+                channels[currentUser.id].banner = bannerUrl;
+            }
+            videos.forEach(v => {
+                if (v.channelId === currentUser.id) {
+                    v.channelAvatar = currentUser.avatar;
+                    v.channelName = currentUser.name;
+                }
+            });
+            if (currentChannelId === currentUser.id) openChannelPage(currentUser.id);
+            if (currentVideoId) {
+                const video = videos.find(v => v.id === currentVideoId);
+                if (video?.channelId === currentUser.id) openVideoPage(currentVideoId);
+            }
+            renderAllGrids();
+            saveToStorage();
+            closeModal('editProfileModal');
+        });
+
+        // Плейлисты (упрощённо)
+        function renderPlaylists() {
+            playlistsGrid.innerHTML = playlists.map(p => `
+                <div class="playlist-card" data-playlist-id="${p.id}">
+                    <div class="playlist-cover" style="background-image: url('${p.cover}')"></div>
+                    <div class="playlist-info">
+                        <div class="playlist-title">${p.name}</div>
+                        <div class="playlist-desc">${p.description || ''}</div>
+                        <div class="playlist-meta">${p.videos?.length || 0} видео</div>
+                    </div>
+                    <button class="delete-playlist-btn" data-playlist-id="${p.id}"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `).join('');
+        }
+        createPlaylistBtn.addEventListener('click', () => playlistModal.classList.add('active'));
+        document.getElementById('savePlaylistBtn').addEventListener('click', async () => {
+            const name = document.getElementById('playlistName').value.trim();
+            if (!name) return alert('Введите название');
+            const desc = document.getElementById('playlistDesc').value.trim();
+            const coverFile = document.getElementById('playlistCover').files[0];
+            let cover = generateThumbnailDataURL('Playlist', 320, 180);
+            if (coverFile) cover = await fileToBase64(coverFile);
+            playlists.push({ id: 'p'+Date.now(), name, description: desc, cover, videos: [], owner: currentUser.id });
+            saveToStorage();
+            renderPlaylists();
+            closeModal('playlistModal');
+        });
+
+        // Сообщения (упрощённо)
+        function renderMessagesPage() {
+            const mutuals = [];
+            for (let chId in channels) {
+                if (chId === currentUser.id) continue;
+                const otherSubs = channels[chId].subscriptions || [];
+                if (currentUser.subscriptions.includes(chId) && otherSubs.includes(currentUser.id)) mutuals.push(chId);
+            }
+            let html = `<div class="contacts-list">` +
+                mutuals.map(chId => `<div class="contact-item" data-contact="${chId}"><div class="contact-avatar" style="background-image:url('${channels[chId].avatar}')"></div><span>${channels[chId].name}</span></div>`).join('') +
+                `</div><div class="chat-area"><div class="chat-header">Выберите собеседника</div><div class="messages-list" id="messagesList"></div><div class="chat-input"><textarea id="messageInput"></textarea><button id="sendMessageBtn">Отправить</button></div></div>`;
+            messagesContainer.innerHTML = html;
+            document.querySelectorAll('.contact-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.contact-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    loadChat(item.dataset.contact);
+                });
+            });
+        }
+        function loadChat(contactId) {
+            const chatHeader = document.querySelector('.chat-header');
+            chatHeader.textContent = `Чат с ${channels[contactId].name}`;
+            const messagesList = document.getElementById('messagesList');
+            const pairId = [currentUser.id, contactId].sort().join('_');
+            const msgs = messages[pairId] || [];
+            messagesList.innerHTML = msgs.map(m => {
+                const isOwn = m.from === currentUser.id;
+                return `<div class="message ${isOwn ? 'own' : ''}"><div class="message-avatar" style="background-image:url('${channels[m.from].avatar}')"></div><div class="message-content">${m.text}<div class="message-time">${new Date(m.timestamp).toLocaleTimeString()}</div></div></div>`;
+            }).join('');
+            document.getElementById('sendMessageBtn').onclick = () => {
+                const input = document.getElementById('messageInput');
+                const text = input.value.trim();
+                if (!text) return;
+                if (!messages[pairId]) messages[pairId] = [];
+                messages[pairId].push({ from: currentUser.id, to: contactId, text, timestamp: Date.now() });
+                saveToStorage();
+                loadChat(contactId);
+                input.value = '';
+            };
+        }
+
+        // Инструкция
+        helpBtn.addEventListener('click', () => helpModal.classList.add('active'));
+
+        // Закрытие модалок
+        window.closeModal = (id) => document.getElementById(id).classList.remove('active');
+
+        // Восстановление состояния
+        async function restoreState() {
+            const state = loadState();
+            if (state) {
+                searchInput.value = state.search || '';
+                currentFilter = state.filter || 'all';
+                document.querySelectorAll('.chip').forEach(ch => {
+                    if (ch.dataset.filter === currentFilter) ch.classList.add('active');
+                    else ch.classList.remove('active');
+                });
+                if (state.page === 'videoPage' && state.videoId) await openVideoPage(state.videoId, state.videoTime);
+                else if (state.page === 'channelPage' && state.channelId) openChannelPage(state.channelId);
+                else if (state.page) showPage(state.page);
+                else showPage('homePage');
+                if (state.search) {
+                    const filtered = videos.filter(v => v.title.toLowerCase().includes(state.search.toLowerCase()));
+                    homeGrid.innerHTML = filtered.map(v => videoCardHTML(v, v.channelId === currentUser.id)).join('');
+                } else renderHomeGrid();
+            } else showPage('homePage');
+        }
+
+        // Инициализация
+        async function initApp() {
+            try { await openDB(); } catch (err) { console.error(err); }
+            await updateAllVideoDurations();
+            renderAllGrids();
+            updateSubscriptionsList();
+            renderPlaylists();
+            await restoreState();
+        }
+        initApp();
+    })();
+</script>
+</body>
+</html>
