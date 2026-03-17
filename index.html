@@ -7,754 +7,484 @@
     <!-- Font Awesome 6 (для иконок) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-    <style>
-        /* mobile-first стили */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <style>
+/* === ОСНОВНЫЕ ИЗМЕНЕНИЯ ДЛЯ МОБИЛЬНЫХ === */
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            transition: background-color 0.3s, color 0.2s;
-            -webkit-tap-highlight-color: transparent;
-        }
+/* Убираем боковую панель на экранах < 768px */
+@media (max-width: 767px) {
+  .sidebar {
+    display: none;
+  }
 
-        /* Светлая тема (по умолчанию) */
-        body {
-            --bg-primary: #f8fafc;
-            --bg-secondary: #ffffff;
-            --bg-elevated: #f1f5f9;
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --border-color: #e2e8f0;
-            --card-bg: #ffffff;
-            --hover-bg: #e9edf3;
-            --sidebar-bg: #ffffff;
-            --header-bg: rgba(255,255,255,0.8);
-            --shadow: 0 4px 12px rgba(0,0,0,0.05);
-            --shadow-hover: 0 8px 20px rgba(0,0,0,0.1);
-            --accent: #2563eb;
-            --accent-light: #3b82f6;
-            --danger: #dc2626;
-        }
+  .header {
+    padding: 0 12px;
+    height: 60px;
+  }
 
-        /* Тёмная тема */
-        body.dark {
-            --bg-primary: #0f172a;
-            --bg-secondary: #1e293b;
-            --bg-elevated: #334155;
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --border-color: #334155;
-            --card-bg: #1e293b;
-            --hover-bg: #2d3a4f;
-            --sidebar-bg: #1e293b;
-            --header-bg: rgba(30,41,59,0.9);
-            --shadow: 0 4px 12px rgba(0,0,0,0.3);
-            --shadow-hover: 0 8px 20px rgba(0,0,0,0.5);
-        }
+  .search-container {
+    display: none;
+  }
 
-        .app {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
+  .header-icons {
+    gap: 12px;
+  }
 
-        /* Шапка */
-        .header {
-            background-color: var(--header-bg);
-            backdrop-filter: blur(10px);
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-            gap: 8px;
-        }
+  .header-icons i,
+  .settings-btn,
+  .help-btn {
+    font-size: 1.4rem;
+  }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 1.4rem;
-            font-weight: 700;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
+  .avatar-placeholder {
+    width: 36px;
+    height: 36px;
+  }
 
-        .logo i {
-            font-size: 1.8rem;
-            color: var(--accent);
-        }
+  .logo {
+    font-size: 1.6rem;
+  }
 
-        .logo span {
-            background: linear-gradient(135deg, var(--accent), #7c3aed);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+  .logo i {
+    font-size: 2rem;
+  }
 
-        .search-container {
-            flex: 1;
-            min-width: 0;
-            margin: 0 4px;
-        }
+  .main-layout {
+    flex-direction: column;
+  }
 
-        .search-box {
-            display: flex;
-            width: 100%;
-            border: 1px solid var(--border-color);
-            border-radius: 40px;
-            overflow: hidden;
-            background-color: var(--bg-secondary);
-            transition: box-shadow 0.2s;
-        }
+  .content {
+    padding: 16px;
+  }
 
-        .search-box:focus-within {
-            box-shadow: 0 0 0 2px var(--accent-light);
-            border-color: transparent;
-        }
+  .video-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 
-        .search-box input {
-            flex: 1;
-            border: none;
-            padding: 10px 16px;
-            font-size: 0.95rem;
-            background: transparent;
-            color: var(--text-primary);
-            outline: none;
-            min-width: 0;
-        }
+  .video-card {
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
 
-        .search-box button {
-            background-color: var(--bg-elevated);
-            border: none;
-            border-left: 1px solid var(--border-color);
-            width: 48px;
-            cursor: pointer;
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-        }
+  .thumbnail {
+    aspect-ratio: 9 / 16;
+    border-radius: 16px;
+  }
 
-        .header-icons {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-shrink: 0;
-        }
+  .thumbnail img {
+    border-radius: 16px;
+  }
 
-        .header-icons i, .header-icons button {
-            font-size: 1.4rem;
-            color: var(--text-secondary);
-            background: none;
-            border: none;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
+  .duration {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 20px;
+  }
 
-        .header-icons button:hover { color: var(--accent); }
+  .video-info {
+    padding: 12px 14px;
+    gap: 12px;
+  }
 
-        .avatar-placeholder {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background-size: cover;
-            background-position: center;
-            background-color: var(--accent-light);
-            border: 2px solid var(--border-color);
-            cursor: pointer;
-        }
+  .channel-avatar {
+    width: 36px;
+    height: 36px;
+  }
 
-        /* Боковое меню (выдвижное) */
-        .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 200;
-            display: none;
-            backdrop-filter: blur(4px);
-        }
+  .video-title {
+    font-size: 1rem;
+    -webkit-line-clamp: 2;
+  }
 
-        .sidebar-overlay.active {
-            display: block;
-        }
+  .video-meta {
+    font-size: 0.85rem;
+  }
 
-        .sidebar {
-            position: fixed;
-            top: 0;
-            left: -280px;
-            width: 280px;
-            height: 100%;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
-            z-index: 201;
-            transition: left 0.3s ease;
-            overflow-y: auto;
-            padding: 20px 12px;
-            box-shadow: 2px 0 12px rgba(0,0,0,0.1);
-        }
+  .upload-home-btn,
+  .subscribe-btn,
+  .like-button {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    border-radius: 30px;
+  }
 
-        .sidebar.open {
-            left: 0;
-        }
+  .like-button {
+    min-width: 100px;
+  }
 
-        .sidebar .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 14px 16px;
-            border-radius: 18px;
-            color: var(--text-primary);
-            font-weight: 500;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-bottom: 4px;
-        }
+  .subscribe-btn {
+    min-width: 120px;
+  }
 
-        .sidebar .nav-item i {
-            font-size: 1.3rem;
-            width: 28px;
-            color: var(--text-secondary);
-        }
+  .video-actions {
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
 
-        .sidebar .nav-item.active {
-            background: linear-gradient(135deg, var(--accent-light), var(--accent));
-            color: white;
-        }
-        .sidebar .nav-item.active i { color: white; }
+  .video-title-block {
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+  }
 
-        .sidebar hr {
-            margin: 20px 12px;
-            border: 1px solid var(--border-color);
-        }
+  .video-description {
+    padding: 14px;
+    font-size: 0.95rem;
+    border-radius: 20px;
+  }
 
-        .sidebar h4 {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            padding: 8px 16px;
-            letter-spacing: 0.5px;
-        }
+  .channel-info-mini {
+    padding: 14px;
+    border-radius: 50px;
+    gap: 14px;
+  }
 
-        /* Основной контент */
-        .content {
-            flex: 1;
-            padding: 16px 12px;
-            overflow-x: hidden;
-        }
+  .channel-avatar {
+    width: 40px;
+    height: 40px;
+  }
 
-        .page { display: none; }
-        .page.active { display: block; }
+  .video-stats {
+    font-size: 0.85rem;
+  }
 
-        /* Чипсы */
-        .chips-wrapper {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .chip {
-            background-color: var(--bg-elevated);
-            padding: 8px 16px;
-            border-radius: 40px;
-            font-weight: 500;
-            color: var(--text-primary);
-            cursor: pointer;
-            border: 1px solid transparent;
-            font-size: 0.9rem;
-            white-space: nowrap;
-        }
-        .chip.active {
-            background-color: var(--accent);
-            color: white;
-        }
-        .upload-home-btn {
-            background: linear-gradient(135deg, var(--accent), #7c3aed);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            margin-left: auto;
-        }
+  .comment-input {
+    gap: 12px;
+  }
 
-        /* Сетка видео (одна колонка) */
-        .video-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+  .comment-input textarea,
+  .chat-input textarea {
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    border-radius: 40px;
+  }
 
-        .video-card {
-            background: var(--card-bg);
-            border-radius: 24px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            position: relative;
-        }
+  .comment-input button,
+  .chat-input button {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+  }
 
-        .thumbnail {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #1e293b;
-        }
-        .thumbnail img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .duration {
-            position: absolute;
-            bottom: 8px;
-            right: 8px;
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            backdrop-filter: blur(4px);
-        }
+  .comment {
+    gap: 12px;
+    margin-bottom: 18px;
+  }
 
-        .video-info {
-            display: flex;
-            gap: 12px;
-            padding: 12px;
-        }
-        .channel-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--accent-light);
-            background-size: cover;
-            background-position: center;
-            flex-shrink: 0;
-        }
-        .video-details {
-            flex: 1;
-        }
-        .video-title {
-            font-weight: 600;
-            font-size: 1rem;
-            margin-bottom: 4px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .channel-name {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
-        .video-meta {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
+  .comment-avatar {
+    width: 40px;
+    height: 40px;
+  }
 
-        .video-actions-card {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            display: flex;
-            gap: 6px;
-            opacity: 0;
-            transition: opacity 0.2s;
-            z-index: 5;
-        }
-        .video-card:hover .video-actions-card,
-        .video-card:active .video-actions-card {
-            opacity: 1;
-        }
-        .video-actions-card button {
-            background: rgba(0,0,0,0.6);
-            border: none;
-            color: white;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1rem;
-            backdrop-filter: blur(4px);
-        }
+  .comment-content {
+    padding: 14px 18px;
+    font-size: 0.95rem;
+    border-radius: 24px;
+  }
 
-        /* Видеоплеер */
-        .video-player {
-            width: 100%;
-            background: #000;
-            border-radius: 24px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-        .video-player video {
-            width: 100%;
-            max-height: 50vh;
-            outline: none;
-        }
+  .comment-author {
+    font-size: 1rem;
+  }
 
-        .video-title-block {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        .video-description {
-            background: var(--bg-elevated);
-            padding: 16px;
-            border-radius: 24px;
-            margin-bottom: 16px;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-        .video-actions {
-            display: flex;
-            gap: 16px;
-            margin-bottom: 16px;
-        }
-        .like-button {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--bg-elevated);
-            border: none;
-            color: var(--text-secondary);
-            padding: 8px 18px;
-            border-radius: 40px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-        .like-button.liked {
-            background: var(--accent);
-            color: white;
-        }
+  .delete-comment-btn {
+    font-size: 1rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+  }
 
-        .channel-info-mini {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: var(--bg-elevated);
-            padding: 12px 16px;
-            border-radius: 60px;
-            margin-bottom: 20px;
-        }
-        .channel-info-mini .channel-avatar {
-            width: 48px;
-            height: 48px;
-        }
-        .video-stats {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
+  .channel-banner {
+    height: 180px;
+    border-radius: 24px;
+  }
 
-        /* Комментарии */
-        .comments-section { margin-top: 24px; }
-        .comment-input {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .comment-input textarea {
-            flex: 1;
-            padding: 12px 16px;
-            border-radius: 40px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            resize: vertical;
-            min-height: 60px;
-            font-size: 0.95rem;
-        }
-        .comment-input button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 0 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .comment {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            position: relative;
-        }
-        .comment-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-size: cover;
-        }
-        .comment-content {
-            background: var(--bg-elevated);
-            padding: 12px 16px;
-            border-radius: 24px;
-            flex: 1;
-        }
-        .delete-comment-btn {
-            position: absolute;
-            right: 8px;
-            top: 8px;
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1rem;
-            cursor: pointer;
-        }
+  .channel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
 
-        /* Страница канала */
-        .channel-banner {
-            width: 100%;
-            height: 150px;
-            background-size: cover;
-            background-position: center;
-            border-radius: 24px;
-            margin-bottom: 16px;
-        }
-        .channel-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .channel-avatar-large {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background-size: cover;
-        }
-        .channel-info h2 {
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
-        .channel-info .channel-id {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-        .channel-header button {
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            color: var(--text-primary);
-        }
-        .subscribe-btn-large {
-            background: linear-gradient(135deg, var(--danger), #b91c1c);
-            color: white !important;
-            border: none !important;
-        }
+  .channel-avatar-large {
+    width: 90px;
+    height: 90px;
+    border: 3px solid var(--border-color);
+  }
 
-        /* Сообщения (mobile) */
-        .messages-container {
-            display: flex;
-            flex-direction: column;
-            height: 70vh;
-            background: var(--bg-secondary);
-            border-radius: 24px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-        }
-        .contacts-list {
-            display: flex;
-            overflow-x: auto;
-            gap: 12px;
-            padding: 12px;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .contact-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 70px;
-            cursor: pointer;
-        }
-        .contact-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background-size: cover;
-        }
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        .chat-header {
-            padding: 12px;
-            font-weight: 600;
-        }
-        .messages-list {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-        }
-        .message {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-            max-width: 80%;
-        }
-        .message.own {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-        .message-content {
-            background: var(--bg-elevated);
-            padding: 10px 14px;
-            border-radius: 20px;
-        }
-        .chat-input {
-            display: flex;
-            padding: 12px;
-            gap: 8px;
-        }
-        .chat-input textarea {
-            flex: 1;
-            padding: 10px;
-            border-radius: 40px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-        }
-        .chat-input button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 0 20px;
-            border-radius: 40px;
-        }
+  .channel-info h2 {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+  }
 
-        /* Плейлисты */
-        .playlists-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .playlist-card {
-            display: flex;
-            gap: 12px;
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 12px;
-            border: 1px solid var(--border-color);
-        }
-        .playlist-cover {
-            width: 80px;
-            height: 80px;
-            border-radius: 16px;
-            background-size: cover;
-        }
+  .channel-info .channel-id {
+    font-size: 0.85rem;
+  }
 
-        /* Модалки */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 300;
-            backdrop-filter: blur(4px);
-        }
-        .modal.active { display: flex; }
-        .modal-content {
-            background: var(--bg-secondary);
-            padding: 24px;
-            border-radius: 32px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .modal-content h3 { margin-bottom: 16px; }
-        .modal-content input, .modal-content textarea, .modal-content select {
-            width: 100%;
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            border-radius: 40px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-        }
-        .modal-content button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            margin-right: 12px;
-        }
-        .modal-content .cancel {
-            background: var(--bg-elevated);
-            color: var(--text-primary);
-        }
+  .subscribe-btn-large,
+  .edit-profile-btn,
+  .upload-video-btn-channel,
+  .send-friend-request-btn {
+    padding: 12px 24px;
+    font-size: 0.95rem;
+    border-radius: 32px;
+    margin: 8px 0;
+  }
 
-        /* Адаптация для очень маленьких экранов */
-        @media (max-width: 400px) {
-            .logo span { display: none; }
-            .header-icons { gap: 8px; }
-        }
+  .settings-container {
+    padding: 24px;
+    border-radius: 32px;
+  }
 
-        /* Уведомления */
-        .notification-popup {
-            position: fixed;
-            top: 80px;
-            right: 16px;
-            background: var(--accent);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 60px;
-            box-shadow: var(--shadow-hover);
-            z-index: 400;
-            display: none;
-            font-weight: 500;
-        }
-        .notification-popup.show { display: block; }
+  .settings-field label,
+  .settings-field input,
+  .modal-content input,
+  .modal-content textarea {
+    padding: 14px 18px;
+    font-size: 1rem;
+  }
 
-        /* Реклама */
-        .ad-container {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            border-radius: 24px;
-            padding: 16px;
-            margin-bottom: 16px;
-            color: white;
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .ad-timer { font-size: 1.8rem; font-weight: 700; }
-        .skip-ad-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid white;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-        }
-        .skip-ad-btn:disabled { opacity: 0.5; }
-    </style>
+  .modal-content {
+    padding: 28px;
+    width: 95%;
+    max-width: 100%;
+    border-radius: 28px;
+  }
+
+  .modal-content h3 {
+    font-size: 1.6rem;
+    margin-bottom: 20px;
+  }
+
+  .random-thumbs {
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .random-thumb {
+    width: 90px;
+    height: 50px;
+    border-radius: 12px;
+  }
+
+  .random-thumb.selected {
+    border-width: 3px;
+  }
+
+  .checkbox-shorts label {
+    font-size: 0.95rem;
+  }
+
+  .category-selector {
+    gap: 10px;
+  }
+
+  .category-selector label {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+    border-radius: 24px;
+    background: var(--bg-elevated);
+  }
+
+  .category-selector label input {
+    display: none;
+  }
+
+  .notification-popup {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    border-radius: 30px;
+    top: 80px;
+    right: 20px;
+  }
+
+  .ad-container {
+    display: none !important; /* Скрываем рекламу на мобильных — если не критично */
+  }
+
+  .video-player {
+    border-radius: 24px;
+    margin-bottom: 20px;
+  }
+
+  .video-player video {
+    max-height: 100vw;
+    aspect-ratio: 9 / 16;
+  }
+
+  .video-actions-card {
+    top: 8px;
+    right: 8px;
+  }
+
+  .video-actions-card button {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .messages-container {
+    height: calc(100vh - 220px);
+  }
+
+  .contacts-list {
+    width: 100%;
+    padding: 8px 0;
+  }
+
+  .contact-item {
+    padding: 12px 16px;
+    margin-bottom: 8px;
+  }
+
+  .contact-avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .chat-header {
+    padding: 12px 16px;
+    font-size: 1rem;
+  }
+
+  .messages-list {
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .message {
+    max-width: 90%;
+  }
+
+  .message-content {
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    border-radius: 20px;
+  }
+
+  .message-time {
+    font-size: 0.7rem;
+  }
+
+  .chat-input {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .playlists-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .playlist-card {
+    border-radius: 20px;
+  }
+
+  .playlist-cover {
+    aspect-ratio: 9 / 16;
+    border-radius: 16px;
+  }
+
+  .playlist-info {
+    padding: 14px;
+  }
+
+  .playlist-title {
+    font-size: 1.1rem;
+  }
+
+  .playlist-meta {
+    font-size: 0.85rem;
+  }
+
+  .chip {
+    padding: 8px 18px;
+    font-size: 0.9rem;
+  }
+
+  .nav-item {
+    padding: 14px 16px;
+    gap: 14px;
+  }
+
+  .nav-item i {
+    font-size: 1.6rem;
+  }
+
+  .nav-item span {
+    font-size: 1rem;
+  }
+
+  .help-btn,
+  .settings-btn {
+    font-size: 1.4rem;
+  }
+}
+
+/* === ПОВЫШЕНИЕ УДОБСТВА ДЛЯ КАСАНИЯ === */
+button, .nav-item, .chip, .video-card, .contact-item, .random-thumb {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* === ПОЛНОЭКРАННЫЙ РЕЖИМ ДЛЯ ВИДЕО НА МОБИЛЬНЫХ === */
+@media (max-width: 767px) {
+  .video-player video:fullscreen,
+  .video-player video:-webkit-full-screen,
+  .video-player video:-moz-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    object-fit: contain;
+  }
+}
+
+/* === ПОПАПЫ — УБИРАЕМ ПРОБЕЛЫ СВЕРХУ И СНИЗУ === */
+.modal-content {
+  margin: 0 !important;
+  max-height: 95vh !important;
+  overflow-y: auto !important;
+}
+
+/* === УБИРАЕМ ПРОБЕЛЫ В ШАПКЕ НА МОБИЛЬНЫХ === */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+/* === ПОДДЕРЖКА ВЕРТИКАЛЬНОГО СКРОЛЛА === */
+body {
+  overflow-x: hidden;
+}
+
+.app {
+  overflow-x: hidden;
+}
+
+.content {
+  overflow-x: hidden;
+  padding-bottom: 60px; /* Чтобы не перекрывалась нижняя панель */
+}
+
+/* === СКРЫТИЕ ПОИСКА НА МОБИЛЬНЫХ — ЗАМЕНА НА ИКОНКУ === */
+@media (max-width: 767px) {
+  .search-container {
+    display: none;
+  }
+
+  .header-icons::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cpath d='M21 21l-4.35-4.35'%3E%3C/path%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
+}
+</style>
+
 </head>
 <body>
 <div class="app">
@@ -1615,70 +1345,88 @@
             skipAdBtn.onclick = () => { clearInterval(adInterval); adContainer.style.display = 'none'; callback(); };
         }
 
-        // Открыть видео
-        async function openVideoPage(videoId, restoreTime = null) {
-            if (currentVideoId) {
-                const prevVideo = videos.find(v => v.id === currentVideoId);
-                if (prevVideo && prevVideo.videoUrl?.startsWith('blob:')) {
-                    URL.revokeObjectURL(prevVideo.videoUrl);
-                    prevVideo.videoUrl = null;
-                }
-            }
-            currentVideoId = videoId;
-            const video = videos.find(v => v.id === videoId);
-            if (!video) return;
+        // Открыть видеоasync function openVideoPage(videoId, restoreTime = null) {
+  console.log('openVideoPage', videoId);
 
-            const viewerId = currentUser.id;
-            if (!video.viewers) video.viewers = [];
-            if (!video.viewers.includes(viewerId)) {
-                video.viewers.push(viewerId);
-                video.views = (video.views || 0) + 1;
-            }
+  // === НОВОЕ: Автоматический полноэкранный режим на мобильных при воспроизведении ===
+  const isMobile = window.innerWidth <= 767;
 
-            if (!watchHistory.includes(videoId)) watchHistory.push(videoId);
-            else { watchHistory = watchHistory.filter(id => id !== videoId); watchHistory.push(videoId); }
-            renderHistoryGrid();
-            saveToStorage();
+  if (currentVideoId) {
+    const prevVideo = videos.find(v => v.id === currentVideoId);
+    if (prevVideo && prevVideo.videoUrl?.startsWith('blob:')) {
+      URL.revokeObjectURL(prevVideo.videoUrl);
+      prevVideo.videoUrl = null;
+    }
+  }
 
-            document.getElementById('videoTitle').textContent = video.title;
-            document.getElementById('videoDescription').textContent = video.description || '';
-            document.getElementById('videoLikes').textContent = formatNumber(video.likes);
-            document.getElementById('videoDislikes').textContent = formatNumber(video.dislikes);
-            document.getElementById('videoChannelName').textContent = video.channelName;
-            const avatarEl = document.getElementById('videoChannelAvatar');
-            avatarEl.style.backgroundImage = `url('${video.channelAvatar}')`;
-            avatarEl.dataset.channel = video.channelId;
+  currentVideoId = videoId;
+  const video = videos.find(v => v.id === videoId);
+  if (!video) return;
 
-            const channel = channels[video.channelId];
-            document.getElementById('videoSubsCount').textContent = formatNumber(channel.subscribers);
-            videoViewsSpan.textContent = video.views || 0;
-            videoDateSpan.textContent = formatDate(video.publishedAt);
+  const viewerId = currentUser.id;
+  if (!video.viewers) video.viewers = [];
+  if (!video.viewers.includes(viewerId)) {
+    video.viewers.push(viewerId);
+    video.views = (video.views || 0) + 1;
+  }
 
-            const subBtn = document.getElementById('videoSubscribeBtn');
-            if (video.channelId === currentUser.id) { subBtn.classList.add('hidden'); subBtn.style.display = 'none'; }
-            else {
-                subBtn.classList.remove('hidden');
-                subBtn.style.display = '';
-                const isSubscribed = currentUser.subscriptions.includes(video.channelId);
-                subBtn.textContent = isSubscribed ? 'Отписаться' : 'Подписаться';
-                subBtn.classList.toggle('subscribed', isSubscribed);
-                subBtn.onclick = () => toggleSubscribe(video.channelId);
-            }
+  if (!watchHistory.includes(videoId)) watchHistory.push(videoId);
+  else {
+    watchHistory = watchHistory.filter(id => id !== videoId);
+    watchHistory.push(videoId);
+  }
 
-            const playVideo = () => {
-                if (video.videoUrl && !video.videoUrl.startsWith('blob:')) {
-                    videoPlayer.src = video.videoUrl;
-                    videoPlayer.load();
-                } else if (video.fileId) {
-                    getVideoFileFromDB(video.fileId).then(blob => {
-                        const url = URL.createObjectURL(blob);
-                        video.videoUrl = url;
-                        videoPlayer.src = url;
-                        videoPlayer.load();
-                    }).catch(err => { videoPlayer.src = ''; });
-                } else videoPlayer.src = '';
-                if (restoreTime !== null && !isNaN(restoreTime)) {
-                    const seek = () => { if (videoPlayer.duration >= restoreTime) videoPlayer.currentTime = restoreTime; };
+  renderHistoryGrid();
+  saveToStorage();
+  saveState();
+
+  document.getElementById('videoTitle').textContent = video.title;
+  document.getElementById('videoDescription').textContent = video.description || i18n[currentLang].noDescription;
+  document.getElementById('videoLikes').textContent = formatNumber(video.likes);
+  document.getElementById('videoDislikes').textContent = formatNumber(video.dislikes);
+  document.getElementById('videoChannelName').textContent = video.channelName;
+
+  const avatarEl = document.getElementById('videoChannelAvatar');
+  avatarEl.style.backgroundImage = `url('${video.channelAvatar}')`;
+  avatarEl.dataset.channel = video.channelId;
+
+  const channel = channels[video.channelId];
+  document.getElementById('videoSubsCount').textContent = formatNumber(channel.subscribers);
+  videoViewsSpan.textContent = video.views || 0;
+  videoDateSpan.textContent = formatDate(video.publishedAt);
+
+  updateVideoPageSubscribeButton(video.channelId);
+
+  const shouldShowAd = Math.random() < 0.3;
+
+  const playVideo = () => {
+    if (video.videoUrl && !video.videoUrl.startsWith('blob:')) {
+      videoPlayer.src = video.videoUrl;
+      videoPlayer.load();
+    } else if (video.fileId) {
+      getVideoFileFromDB(video.fileId).then(blob => {
+        const url = URL.createObjectURL(blob);
+        video.videoUrl = url;
+        videoPlayer.src = url;
+        videoPlayer.load();
+      }).catch(err => {
+        console.error('Failed to load video', err);
+        videoPlayer.src = '';
+      });
+    } else videoPlayer.src = '';
+
+    // === НОВОЕ: Автоматический полноэкранный режим на мобильных ===
+    if (isMobile && !videoPlayer.paused) {
+      videoPlayer.requestFullscreen().catch(console.warn);
+    }
+
+    if (restoreTime !== null && !isNaN(restoreTime)) {
+      const seekToTime = () => {
+        if (videoPlayer.duration >= restoreTime) {
+          videoPlayer.currentTime = restoreTime;
+        } else {
+          videoPlayer.addEventListener('loadedmetadata', ()
+
                     if (videoPlayer.readyState >= 1) seek(); else videoPlayer.addEventListener('loadedmetadata', seek, { once: true });
                 }
             };
